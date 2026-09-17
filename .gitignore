@@ -12,11 +12,11 @@ Digitalizing_Papers/config/drive_config.json
 .sync_state.json
 **/raw_inputs/.sync_state.json
 Digitalizing_Papers/output_pdfs/*
-!Digitalizing_Papers/output_pdfs/README.txt
+!Digitalizing_Papers/output_pdfs/README.md
 Digitalizing_Papers/digitized_texts/*
-!Digitalizing_Papers/digitized_texts/README.txt
+!Digitalizing_Papers/digitized_texts/README.md
 Digitalizing_Papers/raw_inputs/*
-!Digitalizing_Papers/raw_inputs/README.txt
+!Digitalizing_Papers/raw_inputs/README.md
 .tmp_*
 *.tmp
 

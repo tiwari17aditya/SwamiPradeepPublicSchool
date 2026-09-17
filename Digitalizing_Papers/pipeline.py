@@ -29,7 +29,8 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from config.config_manager import config_mgr
+from datetime import datetime
+from config.config_manager import config_mgr, get_exam_subfolder, get_year_folder
 from core.ocr_extractor import PaperDigitalizer
 from core.metadata_parser import MetadataParser
 from core.pdf_generator import ExamPaperPDFGenerator
@@ -106,6 +107,9 @@ class ExamDigitalizationPipeline:
             logger.info(f" Google Drive Link: {drive_link}")
         logger.info(f"============================================================")
 
+        # Automatically update tabular README ledgers in input, output, and text directories
+        self._update_tabular_ledgers(input_pdf, generated_pdf, metadata, saved_text_path)
+
         return {
             "input_file": str(input_pdf),
             "digitized_text_file": saved_text_path,
@@ -113,6 +117,50 @@ class ExamDigitalizationPipeline:
             "metadata": metadata,
             "drive_link": drive_link
         }
+
+    def _update_tabular_ledgers(self, input_pdf: Path, output_pdf: str, metadata: Dict[str, Any], saved_text_path: str):
+        """
+        Maintains tabular markdown ledgers with timestamps in raw_inputs, output_pdfs, and digitized_texts.
+        """
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # 1. Update raw_inputs/README.md
+        raw_readme = self.config_mgr.RAW_INPUTS_DIR / "README.md"
+        if raw_readme.exists():
+            content = raw_readme.read_text(encoding="utf-8")
+            if input_pdf.name not in content:
+                rows = [l for l in content.splitlines() if l.strip().startswith("|") and not l.strip().startswith("| Sl")]
+                sl_no = max(1, len(rows))
+                new_row = f"| {sl_no} | {input_pdf.name} | Auto-Detected | {now_str} | Processed |\n"
+                raw_readme.write_text(content.rstrip() + "\n" + new_row, encoding="utf-8")
+
+        # 2. Update output_pdfs/README.md
+        out_readme = self.config_mgr.OUTPUT_PDFS_DIR / "README.md"
+        if out_readme.exists():
+            content = out_readme.read_text(encoding="utf-8")
+            out_name = Path(output_pdf).name
+            if out_name not in content:
+                rows = [l for l in content.splitlines() if l.strip().startswith("|") and not l.strip().startswith("| Sl")]
+                sl_no = max(1, len(rows))
+                exam_sub = get_exam_subfolder(metadata.get("exam_type", ""))
+                year_sub = get_year_folder(metadata, self.config_mgr.get_format_config().get("school", {}).get("academic_session", "2026-2027"))
+                drive_loc = f"`{year_sub}/{exam_sub}/`"
+                cls_name = metadata.get("class_name", "").replace("_", " ")
+                subj = metadata.get("subject", "").replace("_", " ")
+                exam_t = metadata.get("exam_type") or "General"
+                new_row = f"| {sl_no} | {out_name} | {exam_t} | {cls_name} | {subj} | {year_sub} | {now_str} | {drive_loc} |\n"
+                out_readme.write_text(content.rstrip() + "\n" + new_row, encoding="utf-8")
+
+        # 3. Update digitized_texts/README.md
+        txt_readme = self.config_mgr.DIGITIZED_TEXTS_DIR / "README.md"
+        if txt_readme.exists():
+            content = txt_readme.read_text(encoding="utf-8")
+            txt_name = Path(saved_text_path).name
+            if txt_name not in content:
+                rows = [l for l in content.splitlines() if l.strip().startswith("|") and not l.strip().startswith("| Sl")]
+                sl_no = max(1, len(rows))
+                new_row = f"| {sl_no} | {input_pdf.name} | {txt_name} | Bilingual | {now_str} | Completed |\n"
+                txt_readme.write_text(content.rstrip() + "\n" + new_row, encoding="utf-8")
 
     def run_all(
         self,
