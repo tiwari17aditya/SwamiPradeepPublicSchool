@@ -1,0 +1,97 @@
+{
+  "school": {
+    "name": "SWAMI PRADEEP PUBLIC SCHOOL, Doeri, Sagar, M.P.",
+    "affiliation_text": "Affiliated to CBSE, New Delhi",
+    "address_line": "Main Branch, Education City, Uttar Pradesh",
+    "academic_session": "2026-2027"
+  },
+  "exam_settings": {
+    "instructions": "Exam Type Preference: 1st preference is whatever is detected in the input PDF. 2nd preference is the value configured below. If neither exists or this is left blank (''), NO exam type is added.",
+    "config_exam_type": "Quarterly"
+  },
+  "watermark": {
+    "enabled": true,
+    "text": "Swami Pradeep Public School",
+    "direction": "diagonal_top_left_to_bottom_right",
+    "angle": -40.0,
+    "font_size": 42,
+    "font_name": "Helvetica-Bold",
+    "opacity": 0.11,
+    "color_rgb": [
+      0.65,
+      0.65,
+      0.65
+    ]
+  },
+  "page_layout": {
+    "page_size": "A4",
+    "orientation": "portrait",
+    "margin_top_pt": 36,
+    "margin_bottom_pt": 40,
+    "margin_left_pt": 40,
+    "margin_right_pt": 40
+  },
+  "header_layout": {
+    "show_school_logo": false,
+    "logo_path": "assets/logo.png",
+    "title_font_size": 17,
+    "subtitle_font_size": 10,
+    "divider_line_thickness": 1.2,
+    "show_date_field": true,
+    "date_label": "Date: ",
+    "date_blank_line_length": 25,
+    "metadata_fields": [
+      {
+        "key": "exam_type",
+        "label": "Examination"
+      },
+      {
+        "key": "class_name",
+        "label": "Class"
+      },
+      {
+        "key": "subject",
+        "label": "Subject"
+      },
+      {
+        "key": "time_allowed",
+        "label": "Time Allowed",
+        "default": "2.5 Hours"
+      },
+      {
+        "key": "max_marks",
+        "label": "Maximum Marks",
+        "default": "50"
+      },
+      {
+        "key": "date_line",
+        "label": "Date: ____________________"
+      }
+    ]
+  },
+  "general_instructions": {
+    "show_box": true,
+    "title": "General Instructions:",
+    "default_instructions": [
+      "All questions are compulsory unless internal choice is given.",
+      "Read each question carefully before attempting.",
+      "Write your answers neatly and legibly in the provided space."
+    ]
+  },
+  "question_styling": {
+    "section_font_size": 13,
+    "section_font_weight": "bold",
+    "section_spacing_pt": 12,
+    "question_font_size": 10.5,
+    "line_height_pt": 15,
+    "question_indent_pt": 15,
+    "marks_alignment": "right",
+    "marks_format": "[{marks} Marks]",
+    "choice_or_separator": "--- OR ---"
+  },
+  "naming_format": {
+    "pattern_with_exam": "{typeOfExam}_{class}_{subject}.pdf",
+    "pattern_without_exam": "{class}_{subject}.pdf",
+    "sanitize_spaces": "_"
+  }
+}

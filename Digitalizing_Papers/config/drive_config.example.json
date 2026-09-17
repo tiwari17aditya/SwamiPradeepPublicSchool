@@ -1,0 +1,18 @@
+{
+  "instructions": "Enter your Google Drive Input & Output Folder paths or IDs below.",
+  "drive_input_path": "YOUR_GOOGLE_DRIVE_INPUT_PATH_OR_ID",
+  "drive_output_path": "YOUR_GOOGLE_DRIVE_OUTPUT_PATH_OR_ID",
+  "drive_input_folder_id": "YOUR_GOOGLE_DRIVE_INPUT_PATH_OR_ID",
+  "drive_output_folder_id": "YOUR_GOOGLE_DRIVE_OUTPUT_PATH_OR_ID",
+  "credentials_file": "config/credentials.json",
+  "token_file": "config/token.json",
+  "local_raw_dir": "raw_inputs",
+  "local_output_dir": "output_pdfs",
+  "poll_interval_seconds": 60,
+  "download_mime_types": [
+    "application/pdf",
+    "image/jpeg",
+    "image/png"
+  ],
+  "enabled": false
+}

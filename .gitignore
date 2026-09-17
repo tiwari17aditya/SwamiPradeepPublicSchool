@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local user configurations & credentials (do not expose personal paths)
+Digitalizing_Papers/config/drive_config.json
+**/config/credentials.json
+**/config/token.json
+
+# Local sync states & generated outputs
+.sync_state.json
+**/raw_inputs/.sync_state.json
+Digitalizing_Papers/output_pdfs/*
+!Digitalizing_Papers/output_pdfs/README.txt
+Digitalizing_Papers/digitized_texts/*
+!Digitalizing_Papers/digitized_texts/README.txt
+Digitalizing_Papers/raw_inputs/*
+!Digitalizing_Papers/raw_inputs/README.txt
+.tmp_*
+*.tmp
+
+# Virtual environments
+venv/
+env/
+.env
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
