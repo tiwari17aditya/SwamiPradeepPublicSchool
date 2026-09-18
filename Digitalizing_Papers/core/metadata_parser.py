@@ -74,63 +74,65 @@ class MetadataParser:
                     meta["exam_type"] = ""
 
         # --- CLASS RESOLUTION ---
-        class_patterns = [
-            r"class\s*[-: ]*\s*([0-9]{1,2}(?:th|st|nd|rd)?|[IVXLCDM]+)",
-            r"कक्षा\s*[-: ]*\s*([0-9]{1,2}(?:th|st|nd|rd)?|[IVXLCDM]+)",
-            r"(?:std|standard)\s*[-: ]*\s*([0-9]{1,2}(?:th|st|nd|rd)?|[IVXLCDM]+)",
-            r"\b(class[-_ ]*[0-9]{1,2})\b",
-            r"\b(nursery|lkg|ukg|kg)\b"
-        ]
-        for pat in class_patterns:
-            m = re.search(pat, combined_context, re.IGNORECASE)
-            if m:
-                val = m.group(1) if m.groups() else m.group(0)
-                cleaned_class = re.sub(r"[^0-9a-zA-Z]", "", val)
-                if not cleaned_class.lower().startswith("class") and cleaned_class.isdigit():
-                    meta["class_name"] = f"Class_{cleaned_class}"
-                elif cleaned_class.lower().startswith("class"):
-                    meta["class_name"] = cleaned_class.replace("class", "Class_")
-                else:
-                    meta["class_name"] = f"Class_{cleaned_class.upper()}"
-                break
+        if not default_meta or not default_meta.get("class_name"):
+            class_patterns = [
+                r"class\s*[-: ]*\s*([0-9]{1,2}(?:th|st|nd|rd)?|[IVXLCDM]+)",
+                r"कक्षा\s*[-: ]*\s*([0-9]{1,2}(?:th|st|nd|rd)?|[IVXLCDM]+)",
+                r"(?:std|standard)\s*[-: ]*\s*([0-9]{1,2}(?:th|st|nd|rd)?|[IVXLCDM]+)",
+                r"\b(class[-_ ]*[0-9]{1,2})\b",
+                r"\b(kg[-_ ]*1|kg[-_ ]*2|nursery|lkg|ukg|kg)\b"
+            ]
+            for pat in class_patterns:
+                m = re.search(pat, combined_context, re.IGNORECASE)
+                if m:
+                    val = m.group(1) if m.groups() else m.group(0)
+                    cleaned_class = re.sub(r"[^0-9a-zA-Z]", "", val)
+                    if not cleaned_class.lower().startswith("class") and cleaned_class.isdigit():
+                        meta["class_name"] = f"Class_{cleaned_class}"
+                    elif cleaned_class.lower().startswith("class"):
+                        meta["class_name"] = cleaned_class.replace("class", "Class_")
+                    else:
+                        meta["class_name"] = f"Class_{cleaned_class.upper()}"
+                    break
 
         # --- SUBJECT RESOLUTION ---
-        subjects = [
-            "Mathematics", "Maths", "गणित",
-            "Science", "विज्ञान",
-            "Social Science", "Social Studies", "SST", "सामाजिक विज्ञान",
-            "English", "अंग्रेजी",
-            "Hindi", "हिन्दी", "हिंदी",
-            "Sanskrit", "संस्कृत",
-            "Computer Science", "Information Technology", "Computer",
-            "Physics", "Chemistry", "Biology",
-            "Accountancy", "Business Studies", "Economics",
-            "History", "Geography", "Political Science"
-        ]
-        for sub in subjects:
-            if re.search(rf"\b{re.escape(sub)}\b", combined_context, re.IGNORECASE):
-                norm_map = {
-                    "maths": "Mathematics",
-                    "गणित": "Mathematics",
-                    "विज्ञान": "Science",
-                    "sst": "Social_Science",
-                    "social studies": "Social_Science",
-                    "social science": "Social_Science",
-                    "सामाजिक विज्ञान": "Social_Science",
-                    "english": "English",
-                    "अंग्रेजी": "English",
-                    "hindi": "Hindi",
-                    "हिन्दी": "Hindi",
-                    "हिंदी": "Hindi",
-                    "sanskrit": "Sanskrit",
-                    "संस्कृत": "Sanskrit",
-                    "computer": "Computer_Science",
-                    "computer science": "Computer_Science",
-                    "it": "Information_Technology",
-                    "information technology": "Information_Technology"
-                }
-                meta["subject"] = norm_map.get(sub.lower(), sub.replace(" ", "_"))
-                break
+        if not default_meta or not default_meta.get("subject"):
+            subjects = [
+                "Mathematics", "Maths", "गणित",
+                "Science", "विज्ञान",
+                "Social Science", "Social Studies", "SST", "सामाजिक विज्ञान",
+                "English", "अंग्रेजी",
+                "Hindi", "हिन्दी", "हिंदी",
+                "Sanskrit", "संस्कृत",
+                "Computer Science", "Information Technology", "Computer",
+                "Physics", "Chemistry", "Biology",
+                "Accountancy", "Business Studies", "Economics",
+                "History", "Geography", "Political Science"
+            ]
+            for sub in subjects:
+                if re.search(rf"\b{re.escape(sub)}\b", combined_context, re.IGNORECASE):
+                    norm_map = {
+                        "maths": "Mathematics",
+                        "गणित": "Mathematics",
+                        "विज्ञान": "Science",
+                        "sst": "Social_Science",
+                        "social studies": "Social_Science",
+                        "social science": "Social_Science",
+                        "सामाजिक विज्ञान": "Social_Science",
+                        "english": "English",
+                        "अंग्रेजी": "English",
+                        "hindi": "Hindi",
+                        "हिन्दी": "Hindi",
+                        "हिंदी": "Hindi",
+                        "sanskrit": "Sanskrit",
+                        "संस्कृत": "Sanskrit",
+                        "computer": "Computer_Science",
+                        "computer science": "Computer_Science",
+                        "it": "Information_Technology",
+                        "information technology": "Information_Technology"
+                    }
+                    meta["subject"] = norm_map.get(sub.lower(), sub.replace(" ", "_"))
+                    break
 
         # --- MAXIMUM MARKS ---
         marks_match = re.search(r"(?:max(?:imum)?\s*marks|m\.?m\.?|पूर्णांक)\s*[:=-]?\s*(\d{2,3})", combined_context, re.IGNORECASE)

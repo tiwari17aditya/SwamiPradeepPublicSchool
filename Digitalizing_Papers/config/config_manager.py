@@ -42,6 +42,46 @@ def get_year_folder(metadata: Dict[str, Any], default_session: str = "2026-2027"
     clean = re.sub(r"[^\w\d\-]", "_", str(session)).strip("_")
     return clean or "2026-2027"
 
+def normalize_paper_key(exam_type: str = "", class_name: str = "", subject: str = "") -> str:
+    """
+    Computes a canonical deduplication key for an exam paper, e.g.:
+    exam='Quarterly', class='Class_6' / 'Class_6TH', subject='Mathematics' / 'Maths' -> 'quarterly:class6:mathematics'
+    """
+    exam_clean = re.sub(r"[^a-z0-9]", "", str(exam_type or "").lower())
+    cls_clean = str(class_name or "").lower().replace(" ", "").replace("_", "")
+    cls_clean = re.sub(r"(st|nd|rd|th)$", "", cls_clean)
+    sub_clean = str(subject or "").lower().replace(" ", "").replace("_", "")
+    if "math" in sub_clean or "गणित" in sub_clean:
+        sub_clean = "mathematics"
+    elif "sci" in sub_clean or "विज्ञान" in sub_clean:
+        sub_clean = "science"
+    elif "eng" in sub_clean or "अंग्रेजी" in sub_clean:
+        sub_clean = "english"
+    elif "hin" in sub_clean or "हिन्दी" in sub_clean or "हिंदी" in sub_clean:
+        sub_clean = "hindi"
+    elif "sans" in sub_clean or "संस्कृत" in sub_clean:
+        sub_clean = "sanskrit"
+    elif "sst" in sub_clean or "social" in sub_clean:
+        sub_clean = "socialscience"
+    return f"{exam_clean}:{cls_clean}:{sub_clean}"
+
+def parse_paper_key_from_filename(filename: str) -> str:
+    """
+    Extracts canonical paper key from a generated PDF filename like 'Quarterly_Class_6TH_Science.pdf'.
+    """
+    stem = Path(filename).stem
+    parts = stem.split("_")
+    if len(parts) >= 3:
+        exam = parts[0]
+        if parts[1].lower() == "class" and len(parts) >= 4:
+            cls = f"Class_{parts[2]}"
+            subj = "_".join(parts[3:])
+        else:
+            cls = parts[1]
+            subj = "_".join(parts[2:])
+        return normalize_paper_key(exam, cls, subj)
+    return normalize_paper_key("", "", stem)
+
 
 class ConfigManager:
     """
@@ -161,7 +201,7 @@ class ConfigManager:
     def _default_format_config() -> Dict[str, Any]:
         return {
             "school": {
-                "name": "SWAMI PRADEEP PUBLIC SCHOOL, Doeri, Sagar, M.P.",
+                "name": "SWAMI PRADEEP PUBLIC SCHOOL, Deori, Sagar, M.P.",
                 "academic_session": "2026-2027"
             },
             "watermark": {

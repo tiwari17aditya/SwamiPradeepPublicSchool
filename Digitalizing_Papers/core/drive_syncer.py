@@ -17,7 +17,13 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-from config.config_manager import config_mgr, get_exam_subfolder, get_year_folder
+from config.config_manager import (
+    config_mgr,
+    get_exam_subfolder,
+    get_year_folder,
+    normalize_paper_key,
+    parse_paper_key_from_filename
+)
 
 logger = logging.getLogger("DriveSyncer")
 
@@ -81,6 +87,7 @@ class DriveSyncer:
         """
         Uploads generated PDF to Google Drive Output Folder under hierarchical structure:
         <Drive Output>/<Year>/<Quarterly | Half-Yearly | Final | General>/<pdf_name>
+        Always removes any stale variant of the same paper to prevent duplicates.
         """
         target = self._get_output_target()
         if not target:
@@ -99,9 +106,21 @@ class DriveSyncer:
             dest_dir = target_path / year_folder / exam_subfolder
             dest_dir.mkdir(parents=True, exist_ok=True)
 
+            # Deduplication: remove any existing stale variant of the same paper
+            current_key = normalize_paper_key(
+                metadata.get("exam_type", ""),
+                metadata.get("class_name", ""),
+                metadata.get("subject", "")
+            )
+            for existing_pdf in dest_dir.glob("*.pdf"):
+                if existing_pdf.name != pdf_file.name:
+                    if parse_paper_key_from_filename(existing_pdf.name) == current_key:
+                        existing_pdf.unlink(missing_ok=True)
+                        logger.info(f"[DriveSyncer] Removed stale duplicate in Google Drive: {existing_pdf.name}")
+
             dest_file = dest_dir / pdf_file.name
             shutil.copy2(pdf_file, dest_file)
-            logger.info(f"[DriveSyncer] Saved to Google Drive hierarchy: {dest_file}")
+            logger.info(f"[DriveSyncer] Updated in Google Drive hierarchy: {dest_file}")
             return str(dest_file)
 
         # Fallback to Google Drive API

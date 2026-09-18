@@ -30,7 +30,13 @@ if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 from datetime import datetime
-from config.config_manager import config_mgr, get_exam_subfolder, get_year_folder
+from config.config_manager import (
+    config_mgr,
+    get_exam_subfolder,
+    get_year_folder,
+    normalize_paper_key,
+    parse_paper_key_from_filename
+)
 from core.ocr_extractor import PaperDigitalizer
 from core.metadata_parser import MetadataParser
 from core.pdf_generator import ExamPaperPDFGenerator
@@ -86,6 +92,18 @@ class ExamDigitalizationPipeline:
         output_pdf_path = self.config_mgr.resolve_output_pdf_path(metadata)
         logger.info(f"[4/4] Generating formatted PDF with Watermark & School Header: {output_pdf_path.name}")
 
+        # Deduplication: remove any existing stale variant of the same paper in the target directory
+        current_key = normalize_paper_key(
+            metadata.get("exam_type", ""),
+            metadata.get("class_name", ""),
+            metadata.get("subject", "")
+        )
+        for existing in output_pdf_path.parent.glob("*.pdf"):
+            if existing.name != output_pdf_path.name:
+                if parse_paper_key_from_filename(existing.name) == current_key:
+                    existing.unlink(missing_ok=True)
+                    logger.info(f"[Pipeline] Removed stale duplicate in local output: {existing.name}")
+
         sections = structured_data.get("sections", [])
         instructions = structured_data.get("general_instructions", [])
 
@@ -121,6 +139,7 @@ class ExamDigitalizationPipeline:
     def _update_tabular_ledgers(self, input_pdf: Path, output_pdf: str, metadata: Dict[str, Any], saved_text_path: str):
         """
         Maintains tabular markdown ledgers with timestamps in raw_inputs, output_pdfs, and digitized_texts.
+        Guarantees zero duplicate entries by updating existing records in-place.
         """
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -128,39 +147,112 @@ class ExamDigitalizationPipeline:
         raw_readme = self.config_mgr.RAW_INPUTS_DIR / "README.md"
         if raw_readme.exists():
             content = raw_readme.read_text(encoding="utf-8")
-            if input_pdf.name not in content:
-                rows = [l for l in content.splitlines() if l.strip().startswith("|") and not l.strip().startswith("| Sl")]
-                sl_no = max(1, len(rows))
-                new_row = f"| {sl_no} | {input_pdf.name} | Auto-Detected | {now_str} | Processed |\n"
-                raw_readme.write_text(content.rstrip() + "\n" + new_row, encoding="utf-8")
+            header_lines = []
+            data_rows = []
+            for line in content.splitlines():
+                if line.strip().startswith("| Sl") or not line.strip().startswith("|"):
+                    header_lines.append(line)
+                elif "---" in line:
+                    header_lines.append(line)
+                else:
+                    cols = [c.strip() for c in line.strip().split("|")[1:-1]]
+                    if len(cols) >= 4:
+                        data_rows.append(cols)
+
+            updated = False
+            for r in data_rows:
+                if r[1] == input_pdf.name:
+                    r[3] = now_str
+                    r[4] = "Processed"
+                    updated = True
+                    break
+            if not updated:
+                data_rows.append([str(len(data_rows) + 1), input_pdf.name, "Auto-Detected", now_str, "Processed"])
+
+            new_lines = list(header_lines)
+            for idx, r in enumerate(data_rows, 1):
+                new_lines.append(f"| {idx} | {r[1]} | {r[2]} | {r[3]} | {r[4]} |")
+            raw_readme.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
         # 2. Update output_pdfs/README.md
         out_readme = self.config_mgr.OUTPUT_PDFS_DIR / "README.md"
         if out_readme.exists():
             content = out_readme.read_text(encoding="utf-8")
+            header_lines = []
+            data_rows = []
+            for line in content.splitlines():
+                if line.strip().startswith("| Sl") or not line.strip().startswith("|"):
+                    header_lines.append(line)
+                elif "---" in line:
+                    header_lines.append(line)
+                else:
+                    cols = [c.strip() for c in line.strip().split("|")[1:-1]]
+                    if len(cols) >= 7:
+                        data_rows.append(cols)
+
             out_name = Path(output_pdf).name
-            if out_name not in content:
-                rows = [l for l in content.splitlines() if l.strip().startswith("|") and not l.strip().startswith("| Sl")]
-                sl_no = max(1, len(rows))
-                exam_sub = get_exam_subfolder(metadata.get("exam_type", ""))
-                year_sub = get_year_folder(metadata, self.config_mgr.get_format_config().get("school", {}).get("academic_session", "2026-2027"))
-                drive_loc = f"`{year_sub}/{exam_sub}/`"
-                cls_name = metadata.get("class_name", "").replace("_", " ")
-                subj = metadata.get("subject", "").replace("_", " ")
-                exam_t = metadata.get("exam_type") or "General"
-                new_row = f"| {sl_no} | {out_name} | {exam_t} | {cls_name} | {subj} | {year_sub} | {now_str} | {drive_loc} |\n"
-                out_readme.write_text(content.rstrip() + "\n" + new_row, encoding="utf-8")
+            exam_sub = get_exam_subfolder(metadata.get("exam_type", ""))
+            year_sub = get_year_folder(metadata, self.config_mgr.get_format_config().get("school", {}).get("academic_session", "2026-2027"))
+            drive_loc = f"`{year_sub}/{exam_sub}/`"
+            cls_name = metadata.get("class_name", "").replace("_", " ")
+            subj = metadata.get("subject", "").replace("_", " ")
+            exam_t = metadata.get("exam_type") or "General"
+            current_key = normalize_paper_key(exam_t, cls_name, subj)
+
+            updated = False
+            for r in data_rows:
+                row_key = parse_paper_key_from_filename(r[1])
+                if row_key == current_key or r[1] == out_name:
+                    r[1] = out_name
+                    r[2] = exam_t
+                    r[3] = cls_name
+                    r[4] = subj
+                    r[5] = year_sub
+                    r[6] = now_str
+                    r[7] = drive_loc
+                    updated = True
+                    break
+            if not updated:
+                data_rows.append([str(len(data_rows) + 1), out_name, exam_t, cls_name, subj, year_sub, now_str, drive_loc])
+
+            new_lines = list(header_lines)
+            for idx, r in enumerate(data_rows, 1):
+                new_lines.append(f"| {idx} | {r[1]} | {r[2]} | {r[3]} | {r[4]} | {r[5]} | {r[6]} | {r[7]} |")
+            out_readme.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
         # 3. Update digitized_texts/README.md
         txt_readme = self.config_mgr.DIGITIZED_TEXTS_DIR / "README.md"
         if txt_readme.exists():
             content = txt_readme.read_text(encoding="utf-8")
+            header_lines = []
+            data_rows = []
+            for line in content.splitlines():
+                if line.strip().startswith("| Sl") or not line.strip().startswith("|"):
+                    header_lines.append(line)
+                elif "---" in line:
+                    header_lines.append(line)
+                else:
+                    cols = [c.strip() for c in line.strip().split("|")[1:-1]]
+                    if len(cols) >= 5:
+                        data_rows.append(cols)
+
             txt_name = Path(saved_text_path).name
-            if txt_name not in content:
-                rows = [l for l in content.splitlines() if l.strip().startswith("|") and not l.strip().startswith("| Sl")]
-                sl_no = max(1, len(rows))
-                new_row = f"| {sl_no} | {input_pdf.name} | {txt_name} | Bilingual | {now_str} | Completed |\n"
-                txt_readme.write_text(content.rstrip() + "\n" + new_row, encoding="utf-8")
+            updated = False
+            for r in data_rows:
+                if r[1] == input_pdf.name:
+                    r[2] = txt_name
+                    r[3] = "Bilingual"
+                    r[4] = now_str
+                    r[5] = "Completed"
+                    updated = True
+                    break
+            if not updated:
+                data_rows.append([str(len(data_rows) + 1), input_pdf.name, txt_name, "Bilingual", now_str, "Completed"])
+
+            new_lines = list(header_lines)
+            for idx, r in enumerate(data_rows, 1):
+                new_lines.append(f"| {idx} | {r[1]} | {r[2]} | {r[3]} | {r[4]} | {r[5]} |")
+            txt_readme.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
     def run_all(
         self,

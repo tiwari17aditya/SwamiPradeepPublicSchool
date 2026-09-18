@@ -77,7 +77,8 @@ You can rewrite or force an exam type using `--exam-type`:
 ```powershell
 python pipeline.py --sync-drive
 ```
-*(Downloads incoming papers from `drive_input_folder_id`, processes them, and uploads finished PDFs to `drive_output_folder_id`)*
+### Automated Deduplication & In-Place Updates:
+- **Zero Duplicate Outputs**: Output filenames and Google Drive uploads are normalized by canonical paper key (`Exam_Type`, `Class`, `Subject`). Any older filename variants (e.g. `Class_6TH` vs `Class_6`) are automatically replaced, and tabular ledgers are updated in-place.
 
 ---
 
@@ -87,16 +88,17 @@ python pipeline.py --sync-drive
 Digitalizing_Papers/
 ├── config/
 │   ├── config_manager.py     # Central path & configuration manager
-│   ├── format_config.json    # Paper styles, watermark, header & exam_type setting
+│   ├── format_config.json    # Paper styles, watermark, header (Deori) & exam_type setting
 │   └── drive_config.json     # Google Drive input & output folder IDs + credentials
 │
 ├── core/
-│   ├── drive_syncer.py       # Downloads from Drive input & uploads to Drive output
+│   ├── drive_syncer.py       # Downloads from Drive input & uploads to Drive output (with deduplication)
 │   ├── ocr_extractor.py      # Vision AI transcription with multi-model fallback chain
+│   ├── exam_papers_data.py   # Verified high-fidelity transcription dataset for school papers
 │   ├── metadata_parser.py    # 3-tier exam type preference & filename formulation
 │   └── pdf_generator.py      # High-fidelity browser print & ReportLab fallback
 │
-├── raw_inputs/               # Incoming handwritten PDFs (Sample.pdf)
+├── raw_inputs/               # Incoming handwritten PDFs
 ├── digitized_texts/          # Extracted .txt files in original Hindi/English format
 ├── output_pdfs/              # Generated final PDFs (<typeOfExam>_<class>_<subject>.pdf)
 │   └── preview_images/       # Visual page previews
