@@ -70,16 +70,23 @@ def check_system_status():
     out_root = config_mgr.OUTPUT_PDFS_DIR
     pdf_count = 0
     if out_root.exists():
-        for year_dir in out_root.iterdir():
+        for year_dir in sorted(out_root.iterdir()):
             if year_dir.is_dir() and not year_dir.name.startswith("."):
                 print(f"  * Academic Session [{year_dir.name}]:")
-                for exam_dir in year_dir.iterdir():
-                    if exam_dir.is_dir():
-                        pdfs = list(exam_dir.glob("*.pdf"))
-                        pdf_count += len(pdfs)
-                        print(f"    |-- {exam_dir.name:<14} : {len(pdfs)} paper(s)")
-                        for p in pdfs:
-                            print(f"        -> {p.name}")
+                for exam_dir in sorted(year_dir.iterdir()):
+                    if exam_dir.is_dir() and not exam_dir.name.startswith("."):
+                        all_pdfs = list(exam_dir.rglob("*.pdf"))
+                        pdf_count += len(all_pdfs)
+                        print(f"    |-- {exam_dir.name:<14} : {len(all_pdfs)} paper(s)")
+                        for sub in sorted(exam_dir.iterdir()):
+                            if sub.is_dir() and not sub.name.startswith("."):
+                                class_pdfs = list(sub.glob("*.pdf"))
+                                if class_pdfs:
+                                    print(f"        |-- [{sub.name}] : {len(class_pdfs)} paper(s)")
+                                    for p in sorted(class_pdfs):
+                                        print(f"            -> {p.name}")
+                            elif sub.is_file() and sub.suffix.lower() == ".pdf":
+                                print(f"        -> {sub.name}")
     if pdf_count == 0:
         print("  (No production papers in output_pdfs; sample papers stored in sample/)")
 

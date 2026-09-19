@@ -201,6 +201,8 @@ class ExamPaperPDFGenerator:
             "    margin: 14px 0 8px 0;",
             "    border-radius: 3px;",
             "    letter-spacing: 0.5px;",
+            "    page-break-after: avoid;",
+            "    break-after: avoid;",
             "}",
             ".question-item {",
             "    display: flex;",

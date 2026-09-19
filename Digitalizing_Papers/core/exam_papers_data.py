@@ -929,3 +929,9 @@ def get_paper_class8_transcription() -> Tuple[str, Dict[str, Any]]:
         "raw_transcription": raw_text
     }
     return raw_text, structured
+
+
+# Re-export new exam paper transcriptions
+from core.exam_papers_data_new import *
+from core.exam_papers_english import *
+from core.exam_papers_evs import *

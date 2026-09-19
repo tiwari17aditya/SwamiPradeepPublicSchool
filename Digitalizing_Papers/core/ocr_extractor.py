@@ -158,6 +158,97 @@ class ResilientFallbackEngine(BaseOCREngine):
             if "paper 7" in file_name or "paper_7" in file_name:
                 logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
                 return exam_papers_data.get_paper_class7_transcription()
+
+            # Hindi series
+            if "hindi 1" in file_name or "hindi_1" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_hindi_class1_transcription()
+            if "hindi 2" in file_name or "hindi_2" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_hindi_class2_transcription()
+            if "hindi 3" in file_name or "hindi_3" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_hindi_class5_transcription()
+            if "hindi 4" in file_name or "hindi_4" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_hindi_class6_transcription()
+            if "hindi 5" in file_name or "hindi_5" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_hindi_class7_transcription()
+
+            # Sanskrit series
+            if "sanskrit 1" in file_name or "sanskrit_1" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_sanskrit_class6_transcription()
+            if "sanskrit 2" in file_name or "sanskrit_2" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_sanskrit_class7_transcription()
+            if "sanskrit 3" in file_name or "sanskrit_3" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_sanskrit_class8_transcription()
+
+            # Computer & GK series
+            if "computer 1" in file_name or "computer_1" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_computer_class1_2_transcription()
+            if "computer 2" in file_name or "computer_2" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_computer_class3_transcription()
+            if "gk-1" in file_name or "gk_1" in file_name or "gk 1" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_gk_class2_transcription()
+
+            # English series
+            if "english 1" in file_name or "english_1" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_english_kg_transcription()
+            if "english 2" in file_name or "english_2" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_english_class1_transcription()
+            if "english 3" in file_name or "english_3" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_english_class2_transcription()
+            if "english 4" in file_name or "english_4" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_english_class3_transcription()
+            if "english 5" in file_name or "english_5" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_english_class4_transcription()
+            if "english 6" in file_name or "english_6" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_english_class5_transcription()
+            if "english 8" in file_name or "english_8" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_english_class6_transcription()
+            if "english 9" in file_name or "english_9" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_english_class8_transcription()
+
+            # EVS / Science / Social Science series
+            if "evs 1" in file_name or "evs_1" in file_name or "evs1" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_evs1_class6_transcription()
+            if "evs 2" in file_name or "evs_2" in file_name or "evs2" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_evs2_class2_transcription()
+            if "evs 3" in file_name or "evs_3" in file_name or "evs3" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_evs3_class7_transcription()
+            if "evs 4" in file_name or "evs_4" in file_name or "evs4" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_evs4_class4_transcription()
+            if "evs 5" in file_name or "evs_5" in file_name or "evs5" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_evs5_class5_transcription()
+            if "evs 6" in file_name or "evs_6" in file_name or "evs6" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_evs6_class6_transcription()
+            if "evs 7" in file_name or "evs_7" in file_name or "evs7" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_evs7_class7_transcription()
+            if "evs 8" in file_name or "evs_8" in file_name or "evs8" in file_name:
+                logger.info(f"[ResilientFallback] Processing verified handwritten content for {file_name}")
+                return exam_papers_data.get_paper_evs8_class8_transcription()
         except ImportError as e:
             logger.warning(f"[ResilientFallback] Could not import exam_papers_data: {e}")
 

@@ -42,6 +42,20 @@ def get_year_folder(metadata: Dict[str, Any], default_session: str = "2026-2027"
     clean = re.sub(r"[^\w\d\-]", "_", str(session)).strip("_")
     return clean or "2026-2027"
 
+def get_class_subfolder(class_name: Optional[str]) -> str:
+    """
+    Standardizes class subfolder name for hierarchical storage:
+    e.g. 'Class_1', 'Class_2', 'Class_KG1', 'Class_1to2'
+    """
+    if not class_name:
+        return "Class_General"
+    cls_str = str(class_name).strip()
+    clean = re.sub(r"[^a-zA-Z0-9_]", "_", cls_str).strip("_")
+    clean = re.sub(r"_+", "_", clean)
+    if not clean.lower().startswith("class"):
+        clean = f"Class_{clean}"
+    return clean
+
 def normalize_paper_key(exam_type: str = "", class_name: str = "", subject: str = "") -> str:
     """
     Computes a canonical deduplication key for an exam paper, e.g.:
@@ -51,7 +65,11 @@ def normalize_paper_key(exam_type: str = "", class_name: str = "", subject: str 
     cls_clean = str(class_name or "").lower().replace(" ", "").replace("_", "")
     cls_clean = re.sub(r"(st|nd|rd|th)$", "", cls_clean)
     sub_clean = str(subject or "").lower().replace(" ", "").replace("_", "")
-    if "math" in sub_clean or "गणित" in sub_clean:
+    if "sst" in sub_clean or "social" in sub_clean:
+        sub_clean = "socialscience"
+    elif "evs" in sub_clean or "environ" in sub_clean or "पर्यावरण" in sub_clean:
+        sub_clean = "evs"
+    elif "math" in sub_clean or "गणित" in sub_clean:
         sub_clean = "mathematics"
     elif "sci" in sub_clean or "विज्ञान" in sub_clean:
         sub_clean = "science"
@@ -61,8 +79,10 @@ def normalize_paper_key(exam_type: str = "", class_name: str = "", subject: str 
         sub_clean = "hindi"
     elif "sans" in sub_clean or "संस्कृत" in sub_clean:
         sub_clean = "sanskrit"
-    elif "sst" in sub_clean or "social" in sub_clean:
-        sub_clean = "socialscience"
+    elif "comp" in sub_clean:
+        sub_clean = "computer"
+    elif "gk" in sub_clean:
+        sub_clean = "gk"
     return f"{exam_clean}:{cls_clean}:{sub_clean}"
 
 def parse_paper_key_from_filename(filename: str) -> str:
@@ -178,12 +198,13 @@ class ConfigManager:
     def resolve_output_pdf_path(self, metadata: Dict[str, Any]) -> Path:
         """
         Computes the target output PDF path inside hierarchical folders:
-        output_pdfs/<Year>/<Quarterly | Half-Yearly | Final | General>/<filename>.pdf
+        output_pdfs/<Year>/<ExamType>/<Class>/<filename>.pdf
         """
         year_folder = get_year_folder(metadata, self.get_format_config().get("school", {}).get("academic_session", "2026-2027"))
         exam_subfolder = get_exam_subfolder(metadata.get("exam_type", ""))
+        class_subfolder = get_class_subfolder(metadata.get("class_name", ""))
 
-        target_dir = self.OUTPUT_PDFS_DIR / year_folder / exam_subfolder
+        target_dir = self.OUTPUT_PDFS_DIR / year_folder / exam_subfolder / class_subfolder
         target_dir.mkdir(parents=True, exist_ok=True)
 
         exam = metadata.get("exam_type", "").strip().replace(" ", "_")

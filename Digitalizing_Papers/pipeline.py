@@ -34,6 +34,7 @@ from config.config_manager import (
     config_mgr,
     get_exam_subfolder,
     get_year_folder,
+    get_class_subfolder,
     normalize_paper_key,
     parse_paper_key_from_filename
 )
@@ -193,7 +194,8 @@ class ExamDigitalizationPipeline:
             out_name = Path(output_pdf).name
             exam_sub = get_exam_subfolder(metadata.get("exam_type", ""))
             year_sub = get_year_folder(metadata, self.config_mgr.get_format_config().get("school", {}).get("academic_session", "2026-2027"))
-            drive_loc = f"`{year_sub}/{exam_sub}/`"
+            class_sub = get_class_subfolder(metadata.get("class_name", ""))
+            drive_loc = f"`{year_sub}/{exam_sub}/{class_sub}/`"
             cls_name = metadata.get("class_name", "").replace("_", " ")
             subj = metadata.get("subject", "").replace("_", " ")
             exam_t = metadata.get("exam_type") or "General"

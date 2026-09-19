@@ -1,0 +1,29 @@
+Swami Pradeep Public School
+त्रैमासिक परीक्षा 2026-27 (Quarterly Examination)
+कक्षा - 3rd
+विषय - Computer
+Max Marks: 50 | Time: 2.0 Hours
+
+Que 1. Select best possible answer for the following questions (10 Marks)
+A. Circle the input device in the following:
+   (i) Keyboard   (ii) Printer   (iii) CPU
+B. Circle the output device in the following:
+   (i) Keyboard   (ii) Monitor   (iii) Mouse
+C. Circle the data storage device in the following:
+   (i) Scanner    (ii) Hard Disk (iii) Printer
+D. What term will you use for wrong result?
+   (i) Garbage    (ii) Dirt      (iii) Useless
+E. Circle the device that does processing in computer:
+   (i) Keyboard   (ii) Printer   (iii) C.P.U.
+
+Que 2. Put a tick mark for correct statement and cross mark for wrong one: (10 Marks)
+A. Operating system makes the computer work. [   ]
+B. Windows is an operating system. [   ]
+C. When you minimize a window, its size gets enlarged to the size of monitor screen. [   ]
+D. Quick launch toolbar consists of many buttons. [   ]
+
+Que 3. What is Computer? (10 Marks)
+
+Que 4. Write the computer of device (Input, Output, and Storage devices) (10 Marks)
+
+Que 5. Draw the picture of Computer and mouse (10 Marks)

@@ -77,8 +77,24 @@ You can rewrite or force an exam type using `--exam-type`:
 ```powershell
 python pipeline.py --sync-drive
 ```
+
+### Management & Diagnostics (`utilities.py`):
+- **Check Pipeline Status & Catalog**:
+  ```powershell
+  python utilities.py --status
+  ```
+- **Sync Drive Inputs & Upload Staged Outputs**:
+  ```powershell
+  python utilities.py --sync-drive
+  ```
+- **Clean Cache & Stale Temporary Files**:
+  ```powershell
+  python utilities.py --clean
+  ```
+
 ### Automated Deduplication & In-Place Updates:
-- **Zero Duplicate Outputs**: Output filenames and Google Drive uploads are normalized by canonical paper key (`Exam_Type`, `Class`, `Subject`). Any older filename variants (e.g. `Class_6TH` vs `Class_6`) are automatically replaced, and tabular ledgers are updated in-place.
+- **Zero Duplicate Outputs**: Output filenames and Google Drive uploads are normalized by canonical paper key (`Exam_Type`, `Class`, `Subject`). Any older filename variants are automatically replaced, and tabular ledgers are updated in-place.
+- **Hierarchical Organization**: Output PDFs are automatically routed to `<Year>/<Exam_Type>/<Class>/` both locally and in Google Drive.
 
 ---
 
@@ -88,11 +104,11 @@ python pipeline.py --sync-drive
 Digitalizing_Papers/
 ├── config/
 │   ├── config_manager.py     # Central path & configuration manager
-│   ├── format_config.json    # Paper styles, watermark, header (Deori) & exam_type setting
-│   └── drive_config.json     # Google Drive input & output folder IDs + credentials
+│   ├── format_config.json    # Paper styles, watermark, header & exam_type setting
+│   └── drive_config.json     # Google Drive folder IDs & sync paths (untracked)
 │
 ├── core/
-│   ├── drive_syncer.py       # Downloads from Drive input & uploads to Drive output (with deduplication)
+│   ├── drive_syncer.py       # Downloads & uploads to Drive output hierarchy (with deduplication)
 │   ├── ocr_extractor.py      # Vision AI transcription with multi-model fallback chain
 │   ├── exam_papers_data.py   # Verified high-fidelity transcription dataset for school papers
 │   ├── metadata_parser.py    # 3-tier exam type preference & filename formulation
@@ -100,8 +116,9 @@ Digitalizing_Papers/
 │
 ├── raw_inputs/               # Incoming handwritten PDFs
 ├── digitized_texts/          # Extracted .txt files in original Hindi/English format
-├── output_pdfs/              # Generated final PDFs (<typeOfExam>_<class>_<subject>.pdf)
-│   └── preview_images/       # Visual page previews
+├── output_pdfs/              # Generated final PDFs (<Year>/<Exam_Type>/<Class>/<pdf>)
+├── utilities.py              # CLI diagnostic and cache cleaner utility
 ├── pipeline.py               # Main CLI runner
 └── requirements.txt          # Python dependencies
 ```
+

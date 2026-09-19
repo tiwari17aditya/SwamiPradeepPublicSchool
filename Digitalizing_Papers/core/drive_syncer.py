@@ -21,6 +21,7 @@ from config.config_manager import (
     config_mgr,
     get_exam_subfolder,
     get_year_folder,
+    get_class_subfolder,
     normalize_paper_key,
     parse_paper_key_from_filename
 )
@@ -99,11 +100,12 @@ class DriveSyncer:
 
         year_folder = get_year_folder(metadata, config_mgr.get_format_config().get("school", {}).get("academic_session", "2026-2027"))
         exam_subfolder = get_exam_subfolder(metadata.get("exam_type", ""))
+        class_subfolder = get_class_subfolder(metadata.get("class_name", ""))
 
         target_path = Path(target)
         if target_path.exists() and target_path.is_dir():
-            # Build hierarchical folder: <Drive Output>/<Year>/<ExamType>/
-            dest_dir = target_path / year_folder / exam_subfolder
+            # Build hierarchical folder: <Drive Output>/<Year>/<ExamType>/<Class>/
+            dest_dir = target_path / year_folder / exam_subfolder / class_subfolder
             dest_dir.mkdir(parents=True, exist_ok=True)
 
             # Deduplication: remove any existing stale variant of the same paper

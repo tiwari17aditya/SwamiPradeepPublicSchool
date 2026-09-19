@@ -30,10 +30,10 @@ description: >-
   ```
 
 ## Output Hierarchy
-All output PDFs are placed into:
-`output_pdfs/<Academic_Year>/<Quarterly | Half-Yearly | Final | General>/<filename>.pdf`
+All output PDFs are placed into a 4-level class hierarchy:
+`output_pdfs/<Academic_Year>/<Quarterly | Half-Yearly | Final | General>/<Class>/<filename>.pdf`
 And mirrored to Google Drive Output folder:
-`<Drive_Output>/<Academic_Year>/<Quarterly | Half-Yearly | Final | General>/<filename>.pdf`
+`<Drive_Output>/<Academic_Year>/<Quarterly | Half-Yearly | Final | General>/<Class>/<filename>.pdf`
 
 ## Formatting Configurations (`config/format_config.json`)
 - School Name: `school.name`
